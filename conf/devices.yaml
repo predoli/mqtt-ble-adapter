@@ -1,0 +1,10 @@
+living_room_heating:
+    name: "living_room_heating"
+    type: "sygonix_ht_100"
+    address: "50:33:8B:F6:D9:60"
+    pw: 0x00000000
+    set_temp_topic_name: "living_room_heating/set_temp"
+    get_temp_topic_name: "living_room_heating/get_temp"
+    get_battery_topic_name: "living_room_heating/get_battery_state"
+    send_interval: 30
+
