@@ -1,3 +1,0 @@
-[console_scripts]
-run-mqtt-ble-adapter = Scripts.runMainController:main
-
