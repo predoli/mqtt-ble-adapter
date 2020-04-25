@@ -60,7 +60,7 @@ class MainController:
 
     def start(self):
         self.client.start(self.parse_subscribe_rules())
-        self.client.send(self.main_controller_settings['debug_topic_name'],"mqtt client started")
+        self.client.send(self.main_controller_settings['debug_topic_name'],"Hello World!")
         for interface in self.interfaces:
             interface.start()
         for device in self.devices:

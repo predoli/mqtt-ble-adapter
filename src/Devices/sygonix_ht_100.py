@@ -296,7 +296,6 @@ class SygonixHt100(Device, threading.Thread):
                     continue
 
             dt = time.time()-start
-            self.send_method(self.debug_topic_name, "Cycle executed in " + str(dt) + " seconds.")
             if self.cycle_fundamental-dt > 0.0:
                 time.sleep(self.cycle_fundamental-dt)
 
