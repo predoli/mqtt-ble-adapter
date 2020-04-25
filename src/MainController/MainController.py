@@ -10,6 +10,7 @@ class MqttWrapper:
         self.hostname = mqtt_settings['hostname']
         self.port = mqtt_settings['port']
         self.timeout = mqtt_settings['timeout']
+        self.prefix = mqtt_settings['topic_prefix']
         self.subscribe_rules = dict()
         self.mqtt_client = mqtt.Client()
         self.mqtt_client.on_message = self.on_message
@@ -25,7 +26,11 @@ class MqttWrapper:
         self.mqtt_client.loop_stop()        
 
     def send(self, topic: str, payload: bytes):
-        self.mqtt_client.publish(topic, payload)
+        if self.prefix[-1] == "/":
+            send_topic = self.prefix + topic
+        else:
+            send_topic = self.prefix + "/" + topic
+        self.mqtt_client.publish(send_topic, payload)
 
     def on_message(self, client, userdata, msg):
         sub_rule = self.subscribe_rules[msg.topic]
@@ -38,8 +43,8 @@ class MainController:
         self.interface_name_map = {}
         self.interface_name_map['ble'] = Hci0Manager
 
-        self.mqtt_settings = self.read_config(mqtt_conf)
-        self.client = MqttWrapper(self.mqtt_settings)
+        self.main_controller_settings = self.read_config(mqtt_conf)
+        self.client = MqttWrapper(self.main_controller_settings)
 
         self.device_settings = self.read_config(device_conf)
         self.decive_factory = DeviceProvider()
@@ -51,14 +56,17 @@ class MainController:
 
         for device in self.devices:
             device.register_interface(self.interfaces_map[device])
-            device.register_send_method(self.client.mqtt_client.publish)
+            device.register_send_method(self.client.send)
 
     def start(self):
         self.client.start(self.parse_subscribe_rules())
+        self.client.send(self.main_controller_settings['debug_topic_name'],"mqtt client started")
         for interface in self.interfaces:
             interface.start()
         for device in self.devices:
             device.start()
+            self.client.send(self.main_controller_settings['debug_topic_name'],"Starting device " + device.name)
+
 
     def parse_subscribe_rules(self):
         rule = dict()

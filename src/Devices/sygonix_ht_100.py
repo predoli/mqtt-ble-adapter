@@ -248,13 +248,13 @@ class SygonixHt100BTCOM(gatt.Device):
 
 
 class SygonixHt100(Device, threading.Thread):
-    def __init__(self, address:str, pw, set_temp_topic_name:str, get_temp_topic_name:str, get_battery_topic_name:str, send_interval:int, name:str):
-        Device.__init__(self)
+    def __init__(self, address:str, pw, set_temp_topic_name:str, get_temp_topic_name:str, get_battery_topic_name:str, debug_topic_name:str , send_interval:int, name:str):
+        Device.__init__(self,name)
         threading.Thread.__init__(self)
         self.pw = pw
-        self.name = name
         self.set_temp_topic_name = set_temp_topic_name
         self.get_temp_topic_name = get_temp_topic_name
+        self.debug_topic_name = debug_topic_name
         self.get_battery_topic_name = get_battery_topic_name
         self.cycle_fundamental = 5.0
         self.cycle_time_send_temp = send_interval
@@ -268,7 +268,7 @@ class SygonixHt100(Device, threading.Thread):
         self.set_running = True
 
     def reset_bt_handle(self):
-        print("reset bt hanlde")
+        self.send_method(self.debug_topic_name,'Reset Device')
         self.interface.manager.stop()
         self.bt_handle = SygonixHt100BTCOM(mac_address=self.address, manager=self.interface.manager,pw = self.pw)
 
@@ -294,8 +294,9 @@ class SygonixHt100(Device, threading.Thread):
                     self.temp_write.update_value(self.temp_write.read_value())
                     self.reset_bt_handle()
                     continue
-    
-            dt = time.time()-start 
+
+            dt = time.time()-start
+            self.send_method(self.debug_topic_name, "Cycle executed in " + str(dt) " seconds."
             if self.cycle_fundamental-dt > 0.0:
                 time.sleep(self.cycle_fundamental-dt)
 
@@ -314,9 +315,9 @@ class SygonixHt100Builder:
     def __init__(self):
         self._instance = None
 
-    def __call__(self, address:str, pw, set_temp_topic_name:str, get_temp_topic_name:str, get_battery_topic_name:str, send_interval:int, name:str, **_ignored):
+    def __call__(self, address:str, pw, set_temp_topic_name:str, get_temp_topic_name:str, get_battery_topic_name:str, debug_topic_name:str, send_interval:int, name:str, **_ignored):
         if not self._instance:
-            self._instance = SygonixHt100(address, pw, set_temp_topic_name, get_temp_topic_name, get_battery_topic_name, send_interval, name)
+            self._instance = SygonixHt100(address, pw, set_temp_topic_name, get_temp_topic_name, get_battery_topic_name, debug_topic_name, send_interval, name)
         return self._instance
 
 

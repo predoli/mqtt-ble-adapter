@@ -6,5 +6,6 @@ living_room_heating:
     set_temp_topic_name: "living_room_heating/set_temp"
     get_temp_topic_name: "living_room_heating/get_temp"
     get_battery_topic_name: "living_room_heating/get_battery_state"
+    debug_topic_name: "living_room_heating/info"
     send_interval: 30
 

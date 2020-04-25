@@ -23,7 +23,8 @@ class WriteValue:
 
 
 class Device(ABC):
-    def __init__(self):
+    def __init__(self),name):
+        self.name = name
         self.send_method = None
         self.interface = None
         self.interface_name = None
