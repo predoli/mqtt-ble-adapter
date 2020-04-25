@@ -249,8 +249,8 @@ class SygonixHt100BTCOM(gatt.Device):
 
 class SygonixHt100(Device, threading.Thread):
     def __init__(self, address:str, pw, set_temp_topic_name:str, get_temp_topic_name:str, get_battery_topic_name:str, debug_topic_name:str , send_interval:int, name:str):
-        Device.__init__(self,name)
         threading.Thread.__init__(self)
+        Device.__init__(self,name)
         self.pw = pw
         self.set_temp_topic_name = set_temp_topic_name
         self.get_temp_topic_name = get_temp_topic_name
@@ -296,7 +296,7 @@ class SygonixHt100(Device, threading.Thread):
                     continue
 
             dt = time.time()-start
-            self.send_method(self.debug_topic_name, "Cycle executed in " + str(dt) " seconds."
+            self.send_method(self.debug_topic_name, "Cycle executed in " + str(dt) + " seconds.")
             if self.cycle_fundamental-dt > 0.0:
                 time.sleep(self.cycle_fundamental-dt)
 
