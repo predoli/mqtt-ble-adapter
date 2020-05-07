@@ -19,21 +19,23 @@ class MqttWrapper:
         self.subscribe_rules = subscribe_rules
         self.mqtt_client.connect(self.hostname, self.port, self.timeout)
         for topic in self.subscribe_rules:
-            self.mqtt_client.subscribe(topic)
+            self.mqtt_client.subscribe(self.add_topic_prefix(topic))
         self.mqtt_client.loop_start()
 
     def stop(self):
         self.mqtt_client.loop_stop()        
 
-    def send(self, topic: str, payload: bytes):
+    def add_topic_prefix(self,topic):
         if self.prefix[-1] == "/":
-            send_topic = self.prefix + topic
+            return self.prefix + topic
         else:
-            send_topic = self.prefix + "/" + topic
-        self.mqtt_client.publish(send_topic, payload)
+            return self.prefix + "/" + topic
+
+    def send(self, topic: str, payload: bytes):
+        self.mqtt_client.publish(self.add_topic_prefix(topic), payload)
 
     def on_message(self, client, userdata, msg):
-        sub_rule = self.subscribe_rules[msg.topic]
+        sub_rule = self.subscribe_rules[self.add_topic_prefix(msg.topic)]
         sub_rule.update_value(msg.payload)
 
 
