@@ -294,6 +294,7 @@ class SygonixHt100(Device, threading.Thread):
                     self.temp_write.update_value(self.temp_write.read_value())
                     self.reset_bt_handle()
                     continue
+                self.send_method(self.debug_topic_name,'send new temp')
 
             dt = time.time()-start
             if self.cycle_fundamental-dt > 0.0:
