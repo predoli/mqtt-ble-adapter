@@ -1,12 +1,14 @@
 import yaml
+import threading
 from Devices.device_factory import *
 import paho.mqtt.client as mqtt
 import logging
 from Interfaces.hci0 import Hci0Manager
 
 
-class MqttWrapper:
+class MqttWrapper(threading.Thread):
     def __init__(self, mqtt_settings : dict):
+        threading.Thread.__init__(self)
         self.hostname = mqtt_settings['hostname']
         self.port = mqtt_settings['port']
         self.timeout = mqtt_settings['timeout']
@@ -15,12 +17,16 @@ class MqttWrapper:
         self.mqtt_client = mqtt.Client()
         self.mqtt_client.on_message = self.on_message
 
-    def start(self,subscribe_rules: dict):
+    def set_subscube_rules(self,subscribe_rules):
         self.subscribe_rules = subscribe_rules
+
+    def run(self):
         self.mqtt_client.connect(self.hostname, self.port, self.timeout)
         for topic in self.subscribe_rules:
-            self.mqtt_client.subscribe(self.add_topic_prefix(topic))
-        self.mqtt_client.loop_start()
+            print("subscribing" + topic)
+            self.mqtt_client.subscribe(topic)
+        self.mqtt_client.loop_forever()
+        print("end")
 
     def stop(self):
         self.mqtt_client.loop_stop()        
@@ -35,8 +41,12 @@ class MqttWrapper:
         self.mqtt_client.publish(self.add_topic_prefix(topic), payload)
 
     def on_message(self, client, userdata, msg):
-        sub_rule = self.subscribe_rules[self.add_topic_prefix(msg.topic)]
-        sub_rule.update_value(msg.payload)
+        try:
+            print("receiving" + msg.topic)
+            sub_rule = self.subscribe_rules[msg.topic]
+            sub_rule.update_value(msg.payload)
+        except KeyError:
+            print("No sub rule for topic: "+ msg.topic)
 
 
 class MainController:
@@ -61,7 +71,8 @@ class MainController:
             device.register_send_method(self.client.send)
 
     def start(self):
-        self.client.start(self.parse_subscribe_rules())
+        self.client.set_subscube_rules(self.parse_subscribe_rules())
+        self.client.start()
         self.client.send(self.main_controller_settings['debug_topic_name'],"Hello World!")
         for interface in self.interfaces:
             interface.start()
