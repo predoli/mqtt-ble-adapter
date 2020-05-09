@@ -23,10 +23,8 @@ class MqttWrapper(threading.Thread):
     def run(self):
         self.mqtt_client.connect(self.hostname, self.port, self.timeout)
         for topic in self.subscribe_rules:
-            print("subscribing" + topic)
             self.mqtt_client.subscribe(topic)
         self.mqtt_client.loop_forever()
-        print("end")
 
     def stop(self):
         self.mqtt_client.loop_stop()        
@@ -42,7 +40,6 @@ class MqttWrapper(threading.Thread):
 
     def on_message(self, client, userdata, msg):
         try:
-            print("receiving" + msg.topic)
             sub_rule = self.subscribe_rules[msg.topic]
             sub_rule.update_value(msg.payload)
         except KeyError:

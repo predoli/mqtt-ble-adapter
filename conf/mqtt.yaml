@@ -1,4 +1,4 @@
-hostname: "192.168.0.14"
+hostname: "localhost"
 port: 1883
 timeout: 1
 topic_prefix: "raspi_node"
