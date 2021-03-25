@@ -1,5 +1,5 @@
 paho-mqtt==1.5.0
-PyYAML==5.3.1
+PyYAML==5.4
 gatt==0.2.7
 
 
